@@ -1,148 +1,372 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments :: head_styles}"></head>
+<head>
+    <div th:replace="~{fragments :: head_styles}"></div>
+
+    <style>
+        /* ІСНУЮЧІ СТИЛІ HERO SECTION (БЕЗ ЗМІН) */
+        #hero-section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: #ffffff;
+            background: linear-gradient(135deg, #0f4c75, #1d976c);
+            background-size: 200% 200%;
+            animation: gradient-animation 10s ease infinite;
+            position: relative;
+            z-index: 5;
+        }
+        @keyframes gradient-animation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        #hero-section h1 { font-size: 4.5rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 20px; text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); opacity: 0; animation: fadeInScale 1s ease-out 0.5s forwards; }
+        #hero-section p { font-size: 1.5rem; max-width: 600px; margin-top: 0; opacity: 0; animation: fadeInScale 1s ease-out 1s forwards; }
+        @keyframes fadeInScale { 0% { opacity: 0; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
+        .scroll-indicator { position: absolute; bottom: 30px; color: rgba(255, 255, 255, 0.8); font-size: 1.2rem; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-10px); } 60% { transform: translateY(-5px); } }
+
+        /* ПОКРАЩЕННЯ КАРТОК-ЛІЧИЛЬНИКІВ */
+        .count-link {
+            text-decoration: none;
+            display: block;
+            height: 100%;
+            color: inherit;
+        }
+
+        .count-card {
+            border: none;
+            border-radius: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            position: relative;
+            min-height: 150px;
+            color: white !important;
+        }
+        .count-link:hover .count-card {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .count-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: rgba(255, 255, 255, 0.1);
+            transition: background 0.3s ease;
+        }
+        .count-link:hover .count-card::after {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .count-card .icon-bg {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 4rem;
+            opacity: 0.3;
+        }
+
+        /* Стиль для швидких посилань */
+        .card-link-custom {
+            display: block;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            background-color: #ffffff;
+            border: 1px solid #dee2e6;
+            color: #212529;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        .card-link-custom:hover {
+            background-color: #f0f7ff;
+            border-color: #0d6efd;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.1);
+        }
+
+        /* НОВІ СТИЛІ ДЛЯ СТРІКЕРА СТАТУСУ */
+        .status-ticker-card {
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            border: 1px solid #ddd;
+        }
+        .status-ticker-card:hover {
+            transform: scale(1.02);
+        }
+
+        .pulse {
+            animation: pulse-animation 2s infinite;
+        }
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.5); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 193, 7, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+        }
+
+        /* СТИЛІ ДЛЯ НОВОГО ІНФО-БЛОКУ */
+        .info-block {
+            background: linear-gradient(180deg, #e9ecef, #ffffff);
+            border-radius: 1.5rem;
+            padding: 40px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            border: 1px solid #dee2e6;
+        }
+        .info-block h3 {
+            color: #0f4c75;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        /* СТИЛІ ДЛЯ СХЕМИ АРХІТЕКТУРИ */
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .flow-module {
+            background-color: #0d6efd;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            margin: 5px 0;
+            transition: background-color 0.3s;
+        }
+        .flow-module:hover {
+            background-color: #0b5ed7;
+        }
+
+        .flow-arrow {
+            color: #6c757d;
+            font-size: 1.5rem;
+            margin: 5px 0;
+        }
+
+        .flow-core {
+            background-color: #dc3545; /* Червоний для критичного ядра */
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+            color: white;
+            box-shadow: 0 6px 15px rgba(220, 53, 69, 0.5);
+            margin: 15px 0;
+        }
+    </style>
+</head>
 <body>
+
+<section id="hero-section">
+    <h1>CP SYSTEM</h1>
+    <p>Інтегрована система моніторингу та обліку надзвичайних ситуацій</p>
+    <div class="scroll-indicator">
+        Прокрутіть униз, щоб почати роботу
+        <i class="bi bi-arrow-down-circle-fill ms-2"></i>
+    </div>
+</section>
+
 <div th:replace="~{fragments :: sidebar('dashboard')}"></div>
+
 <div class="main-content">
-    <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-            <h2 class="fw-bold mb-1">Центр моніторингу</h2>
-            <p class="text-muted mb-0">Оперативна обстановка станом на <span th:text="${#dates.format(#dates.createNow(), 'dd MMM yyyy')}">Date</span></p>
+
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="info-block">
+                <h2 class="text-center mb-4 text-primary">
+                    <i class="bi bi-rocket-takeoff-fill me-2"></i> Наша місія: Комплексний захист та оперативний контроль
+                </h2>
+                <div class="row align-items-center">
+                    <div class="col-lg-6">
+                        <h3 class="fw-bold text-dark">Чому CP System є критичною?</h3>
+                        <p class="lead text-dark">
+                            **CP System (Civil Protection System)** — це інтегрований інструмент, створений для перетворення сирих даних на **критично важливі рішення**. Наша мета — забезпечити миттєве реагування та мінімізацію наслідків будь-якої надзвичайної ситуації.
+                        </p>
+                        <ul class="list-unstyled">
+                            <li class="mb-2 fw-bold"><i class="bi bi-check-circle-fill text-success me-2"></i> **Моніторинг:** Облік об'єктів та реєстрація аварійних подій.</li>
+                            <li class="mb-2 fw-bold"><i class="bi bi-check-circle-fill text-success me-2"></i> **Аналіз Впливу:** Відстеження дозових навантажень та медичних наслідків.</li>
+                            <li class="mb-2 fw-bold"><i class="bi bi-check-circle-fill text-success me-2"></i> **Фінансовий Контроль:** Прозорий облік витрат на ліквідацію та запобіжні заходи.</li>
+                        </ul>
+                        <p class="small text-muted mt-3">
+                            Система надає критично важливу інформацію для прийняття рішень на основі даних, забезпечуючи ефективність реагування. Доступ до всіх модулів здійснюється через бічну навігаційну панель.
+                        </p>
+                    </div>
+                    <div class="col-lg-6 text-center">
+                        <div class="p-4 bg-white rounded-3 border">
+                            <h4 class="text-muted mb-3">Ядро Аналітики та Прогнозування</h4>
+
+                            <div class="flow-container">
+
+                                <div class="d-flex justify-content-center gap-2">
+                                    <div class="flow-module"><i class="bi bi-building"></i> Об'єкти (Facility)</div>
+                                    <div class="flow-module"><i class="bi bi-exclamation-triangle"></i> НС (Emergency)</div>
+                                    <div class="flow-module"><i class="bi bi-radioactive"></i> Дози (Dose)</div>
+                                </div>
+
+                                <i class="bi bi-arrow-down-circle-fill flow-arrow"></i>
+
+                                <div class="flow-core">
+                                    <i class="bi bi-cpu-fill me-2"></i> Центральне Аналітичне Ядро
+                                </div>
+
+                                <i class="bi bi-arrow-down-circle-fill flow-arrow"></i>
+
+                                <div class="d-flex justify-content-center gap-2">
+                                    <div class="flow-module" style="background-color: #198754;"><i class="bi bi-heart-pulse"></i> Вплив на здоров'я</div>
+                                    <div class="flow-module" style="background-color: #6f42c1;"><i class="bi bi-cash"></i> Фінансовий Облік</div>
+                                    <div class="flow-module" style="background-color: #ffc107; color: black;"><i class="bi bi-tools"></i> Заходи</div>
+                                </div>
+
+                            </div>
+                            <p class="small mt-2 text-muted">
+                                Схема відображає взаємодію ключових модулів та централізований підхід до даних.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <h2 class="fw-bolder mb-5 border-bottom pb-2 text-primary">🏠 Огляд Системи Управління</h2>
 
     <div class="row g-4 mb-5">
-        <div class="col-md-3">
-            <a href="/ui/facilities" class="text-decoration-none">
-                <div class="card-custom p-4 h-100 d-flex flex-column justify-content-between position-relative">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="text-primary fs-3"><i class="bi bi-buildings-fill"></i></div>
-                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill">Активно</span>
-                    </div>
-                    <div><h2 class="fw-bold mb-1 text-dark" th:text="${facilitiesCount}">0</h2><p class="text-muted small mb-0">Об'єктів інфраструктури</p></div>
+
+        <div class="col-md-6 col-lg-4">
+            <a th:href="@{/ui/facilities}" class="count-link">
+                <div class="count-card bg-primary p-4 h-100">
+                    <div class="icon-bg"><i class="bi bi-building"></i></div>
+                    <h5 class="mb-1 text-uppercase small opacity-75">Обліковано Об'єктів</h5>
+                    <p class="fs-1 fw-bolder mb-0" th:text="${facilitiesCount}"></p>
+                    <span class="btn btn-sm btn-light mt-2 fw-bold opacity-75">Деталі <i class="bi bi-arrow-right"></i></span>
                 </div>
             </a>
         </div>
-        <div class="col-md-3">
-            <a href="/ui/emergencies" class="text-decoration-none">
-                <div class="card-custom p-4 h-100 d-flex flex-column justify-content-between">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="text-danger fs-3"><i class="bi bi-exclamation-triangle-fill"></i></div>
-                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill">Увага</span>
-                    </div>
-                    <div><h2 class="fw-bold mb-1 text-dark" th:text="${emergenciesCount}">0</h2><p class="text-muted small mb-0">Активних інцидентів</p></div>
+
+        <div class="col-md-6 col-lg-4">
+            <a th:href="@{/ui/emergencies}" class="count-link">
+                <div class="count-card bg-danger p-4 h-100">
+                    <div class="icon-bg"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                    <h5 class="mb-1 text-uppercase small opacity-75">Зареєстровано НС</h5>
+                    <p class="fs-1 fw-bolder mb-0" th:text="${emergenciesCount}"></p>
+                    <span class="btn btn-sm btn-light mt-2 fw-bold opacity-75">Деталі <i class="bi bi-arrow-right"></i></span>
                 </div>
             </a>
         </div>
-        <div class="col-md-3">
-            <a href="/ui/impacts" class="text-decoration-none">
-                <div class="card-custom p-4 h-100 d-flex flex-column justify-content-between">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="text-info fs-3"><i class="bi bi-people-fill"></i></div>
-                    </div>
-                    <div><h2 class="fw-bold mb-1 text-dark">1,240</h2><p class="text-muted small mb-0">Евакуйованого населення</p></div>
-                </div>
-            </a>
+
+        <div class="col-lg-4">
+            <div class="card-custom p-3 h-100">
+                <h5 class="fw-bold mb-3 text-muted">Розподіл НС за типом</h5>
+                <div style="height: 100px;"><canvas id="emergencyTypeChart"></canvas></div>
+            </div>
         </div>
-        <div class="col-md-3">
-            <a href="/ui/costs" class="text-decoration-none">
-                <div class="card-custom p-4 h-100 d-flex flex-column justify-content-between">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="text-success fs-3"><i class="bi bi-currency-dollar"></i></div>
-                    </div>
-                    <div><h2 class="fw-bold mb-1 text-dark">$450k</h2><p class="text-muted small mb-0">Витрати на ліквідацію</p></div>
-                </div>
-            </a>
-        </div>
+
     </div>
 
-    <div class="row g-4">
-        <div class="col-md-8">
-            <div class="card-custom p-4 h-100">
-                <h5 class="fw-bold mb-4">Динаміка зареєстрованих інцидентів (останні 6 місяців)</h5>
-                <div style="height: 350px;"><canvas id="incidentChart"></canvas></div>
+    <h3 class="fw-bolder mt-4 mb-4 text-secondary">Актуальні показники системи (LIVE)</h3>
+
+    <div class="row g-4 mb-5">
+
+        <div class="col-md-4">
+            <div class="status-ticker-card bg-warning p-4 text-dark text-center pulse">
+                <i class="bi bi-shield-fill-exclamation fs-3"></i>
+                <h4 class="mt-2 mb-1 fw-bold">Статус Ризику</h4>
+                <p class="fs-2 fw-bolder mb-0">СЕРЕДНІЙ</p>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="vstack gap-3">
-
-                <div class="card-custom p-4 bg-danger bg-opacity-10 d-flex align-items-center">
-                    <i class="bi bi-radioactive fs-3 text-danger me-3"></i>
-                    <div>
-                        <p class="text-danger small mb-1 fw-bold">МАКСИМАЛЬНА ДОЗА</p>
-                        <h4 class="fw-bold mb-0 text-danger">1.20 Зв</h4>
-                    </div>
-                </div>
-
-                <div class="card-custom p-4 bg-success bg-opacity-10 d-flex align-items-center">
-                    <i class="bi bi-cash-stack fs-3 text-success me-3"></i>
-                    <div>
-                        <p class="text-success small mb-1 fw-bold">ЗАГАЛЬНІ ВИТРАТИ</p>
-                        <h4 class="fw-bold mb-0 text-success">₴ 1.28 млн</h4>
-                    </div>
-                </div>
-
-                <div class="card-custom p-4 bg-warning bg-opacity-10 d-flex align-items-center">
-                    <i class="bi bi-globe-americas fs-3 text-warning me-3"></i>
-                    <div>
-                        <p class="text-warning small mb-1 fw-bold">НАЙМАСШТАБНІША НС</p>
-                        <h4 class="fw-bold mb-0 text-dark">Регіональна</h4>
-                    </div>
-                </div>
-
+            <div class="status-ticker-card bg-light p-4 text-center">
+                <i class="bi bi-radioactive fs-3 text-success"></i>
+                <h4 class="mt-2 mb-1 fw-bold">Сер. Еквівалентна Доза</h4>
+                <p class="fs-2 fw-bolder mb-0">0.05 Зв</p>
             </div>
         </div>
+
+        <div class="col-md-4">
+            <div class="status-ticker-card bg-light p-4 text-center">
+                <i class="bi bi-hourglass-split fs-3 text-danger"></i>
+                <h4 class="mt-2 mb-1 fw-bold">Активних НС</h4>
+                <p class="fs-2 fw-bolder mb-0">3</p>
+            </div>
+        </div>
+
     </div>
+
+    <h3 class="fw-bold mt-4 mb-3 text-muted">Швидкий перехід</h3>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <a href="/ui/emergencies" class="card-link-custom">
+                <i class="bi bi-journal-text me-2 text-danger"></i> Переглянути Журнал НС
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="/ui/facilities" class="card-link-custom">
+                <i class="bi bi-geo-alt me-2 text-primary"></i> Управління об'єктами
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a href="/ui/costs" class="card-link-custom">
+                <i class="bi bi-cash me-2 text-success"></i> Облік витрат
+            </a>
+        </div>
+    </div>
+
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const ctx = document.getElementById('incidentChart').getContext('2d');
-        const primaryColor = 'rgb(13, 110, 253)';
 
-        const data = {
-            labels: ['Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'],
-            datasets: [{
-                label: 'Кількість НС',
-                data: [5, 7, 12, 9, 14, 15, 15],
-                backgroundColor: 'rgba(13, 110, 253, 0.4)',
-                borderColor: primaryColor,
-                borderWidth: 3,
-                tension: 0.4,
-                pointRadius: 6,
-                pointBackgroundColor: primaryColor
-            }]
-        };
-
-        const config = {
-            type: 'line',
-            data: data,
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        bodyFont: { size: 14 },
-                        titleFont: { size: 16, weight: 'bold' }
-                    }
+        const typeCtx = document.getElementById('emergencyTypeChart');
+        if (typeCtx) {
+            new Chart(typeCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Радіаційні', 'Хімічні', 'Природні', 'Інші'],
+                    datasets: [{
+                        label: 'Кількість НС',
+                        data: [5, 4, 3, 3],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(255, 159, 64, 0.8)',
+                            'rgba(75, 192, 192, 0.8)',
+                            'rgba(153, 102, 255, 0.8)'
+                        ],
+                        borderColor: 'rgba(255, 255, 255, 1)',
+                        borderWidth: 1
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: '#eee' },
-                        title: { display: true, text: 'Кількість інцидентів', color: '#555' }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        title: { display: false }
                     },
-                    x: {
-                        grid: { display: false }
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: { display: false }
+                        },
+                        y: {
+                            grid: { display: false }
+                        }
                     }
                 }
-            }
-        };
-
-        new Chart(ctx, config);
+            });
+        }
     });
 </script>
+
 </body>
 </html>

@@ -10,6 +10,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class WebController {
@@ -48,6 +49,10 @@ public class WebController {
         this.costService = costService;
     }
 
+    @GetMapping("/login")
+    public String loginPage() {
+        return "login";
+    }
 
     @GetMapping("/")
     public String dashboard(Model model) {
@@ -102,11 +107,31 @@ public class WebController {
     }
 
     @GetMapping("/ui/emergencies")
-    public String showEmergencies(Model model) {
-        model.addAttribute("list", emergencyRepository.findAll());
+    public String showEmergencies(
+            @RequestParam(value = "scale", required = false) String scale,
+            @RequestParam(value = "type", required = false) String type,
+            Model model) {
+
+        List<Emergency> emergencies = emergencyRepository.findAll();
+
+        if ((scale != null && !scale.isEmpty()) || (type != null && !type.isEmpty())) {
+            emergencies = emergencies.stream()
+                    .filter(e -> (scale == null || scale.isEmpty() || (e.getScale() != null && e.getScale().equalsIgnoreCase(scale))))
+                    .filter(e -> (type == null || type.isEmpty() || (e.getCommunalType() != null && e.getCommunalType().equalsIgnoreCase(type))))
+                    .collect(Collectors.toList());
+        }
+
+        model.addAttribute("possibleScales", List.of("INES 1", "INES 2", "INES 3", "INES 4", "INES 5", "INES 6", "INES 7"));
+        model.addAttribute("possibleTypes", List.of("Chemical", "Radiation", "Natural", "Biological"));
+
+        model.addAttribute("list", emergencies);
         model.addAttribute("activePage", "emergencies");
+        model.addAttribute("selectedScale", scale);
+        model.addAttribute("selectedType", type);
+
         return "emergencies";
     }
+
     @GetMapping("/ui/emergencies/new")
     public String showNewEmergencyForm(Model model) {
         model.addAttribute("emergency", new Emergency());
@@ -122,7 +147,6 @@ public class WebController {
         model.addAttribute("emergency", emergency);
         model.addAttribute("facilities", facilityRepository.findAll());
         model.addAttribute("isNew", false);
-        model.addAttribute("activePage", "emergencies");
         return "emergency_form";
     }
     @PostMapping("/ui/emergencies/save")
@@ -142,7 +166,6 @@ public class WebController {
     public String showNewCountermeasureForm(Model model) {
         model.addAttribute("counterMeasure", new CounterMeasure());
         model.addAttribute("isNew", true);
-        model.addAttribute("activePage", "countermeasures");
         return "countermeasure_form";
     }
     @GetMapping("/ui/countermeasures/edit/{id}")
@@ -151,7 +174,6 @@ public class WebController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "CounterMeasure not found"));
         model.addAttribute("counterMeasure", cm);
         model.addAttribute("isNew", false);
-        model.addAttribute("activePage", "countermeasures");
         return "countermeasure_form";
     }
     @PostMapping("/ui/countermeasures/save")
@@ -172,7 +194,6 @@ public class WebController {
         model.addAttribute("doseMeasure", new DoseMeasure());
         model.addAttribute("emergencies", emergencyRepository.findAll());
         model.addAttribute("isNew", true);
-        model.addAttribute("activePage", "dose-measures");
         return "dose_measure_form";
     }
     @GetMapping("/ui/dose-measures/edit/{id}")
@@ -182,7 +203,6 @@ public class WebController {
         model.addAttribute("doseMeasure", dm);
         model.addAttribute("emergencies", emergencyRepository.findAll());
         model.addAttribute("isNew", false);
-        model.addAttribute("activePage", "dose-measures");
         return "dose_measure_form";
     }
     @PostMapping("/ui/dose-measures/save")
@@ -195,7 +215,6 @@ public class WebController {
     @GetMapping("/ui/impacts")
     public String showImpacts(Model model) {
         model.addAttribute("list", impactRepository.findAll());
-        model.addAttribute("activePage", "impacts");
         return "impacts";
     }
     @GetMapping("/ui/impacts/new")
@@ -204,7 +223,6 @@ public class WebController {
         model.addAttribute("emergencies", emergencyRepository.findAll());
         model.addAttribute("doseMeasures", doseMeasureRepository.findAll());
         model.addAttribute("isNew", true);
-        model.addAttribute("activePage", "impacts");
         return "impact_form";
     }
     @GetMapping("/ui/impacts/edit/{id}")
@@ -215,7 +233,6 @@ public class WebController {
         model.addAttribute("emergencies", emergencyRepository.findAll());
         model.addAttribute("doseMeasures", doseMeasureRepository.findAll());
         model.addAttribute("isNew", false);
-        model.addAttribute("activePage", "impacts");
         return "impact_form";
     }
     @PostMapping("/ui/impacts/save")
@@ -227,7 +244,6 @@ public class WebController {
     @GetMapping("/ui/costs")
     public String showCosts(Model model) {
         model.addAttribute("list", costRepository.findAll());
-        model.addAttribute("activePage", "costs");
         return "costs";
     }
     @GetMapping("/ui/costs/new")
@@ -237,7 +253,6 @@ public class WebController {
         model.addAttribute("emergencies", emergencyRepository.findAll());
         model.addAttribute("impacts", impactRepository.findAll());
         model.addAttribute("isNew", true);
-        model.addAttribute("activePage", "costs");
         return "cost_form";
     }
     @GetMapping("/ui/costs/edit/{id}")
@@ -249,12 +264,34 @@ public class WebController {
         model.addAttribute("emergencies", emergencyRepository.findAll());
         model.addAttribute("impacts", impactRepository.findAll());
         model.addAttribute("isNew", false);
-        model.addAttribute("activePage", "costs");
         return "cost_form";
     }
     @PostMapping("/ui/costs/save")
     public String saveCost(@ModelAttribute("cost") Cost cost) {
         costService.save(cost);
         return "redirect:/ui/costs";
+    }
+
+    @GetMapping("/ui/map")
+    public String showMap(Model model) {
+
+        List<Facility> facilities = facilityRepository.findAll();
+        List<Emergency> emergencies = emergencyRepository.findAll();
+
+        facilities.forEach(facility -> {
+            if (facility.getLatitude() == null && facility.getLocation() != null) {
+                facilityService.autoGeocode(facility);
+                facilityService.save(facility);
+            }
+        });
+
+        facilities = facilityRepository.findAll();
+        emergencies = emergencyRepository.findAll();
+
+        model.addAttribute("facilities", facilities);
+        model.addAttribute("emergencies", emergencies);
+        model.addAttribute("activePage", "map");
+
+        return "map";
     }
 }

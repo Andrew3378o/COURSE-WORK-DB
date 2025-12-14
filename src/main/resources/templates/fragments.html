@@ -10,9 +10,21 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <style>
-    :root { --sidebar-bg: #1e293b; --primary-color: #0d6efd; --hover-glow: rgba(13, 110, 253, 0.3); }
-    body { font-family: 'Inter', sans-serif; background-color: #f4f6f9; overflow-x: hidden; }
-
+    :root {
+      --sidebar-bg: #1e293b;
+      --primary-color: #0d6efd;
+      --primary-light: #52a0ff;
+      --hover-glow: rgba(13, 110, 253, 0.3);
+      --text-color: #333;
+      --sidebar-width-expanded: 260px;
+      --sidebar-width-collapsed: 80px;
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f4f6f9;
+      overflow-x: hidden;
+      color: var(--text-color);
+    }
     body::-webkit-scrollbar, .sidebar::-webkit-scrollbar { width: 8px; }
     body::-webkit-scrollbar-track, .sidebar::-webkit-scrollbar-track { background: #f4f6f9; }
     .sidebar::-webkit-scrollbar-track { background: #1e293b; }
@@ -20,50 +32,221 @@
     body::-webkit-scrollbar-thumb:hover { background-color: #aaa; }
     .sidebar::-webkit-scrollbar-thumb { background-color: #555; }
 
-    .sidebar { width: 260px; height: 100vh; position: fixed; top: 0; left: 0; background-color: var(--sidebar-bg); color: white; padding: 20px; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.1); overflow-y: auto; }
-    .sidebar a { color: #94a3b8; text-decoration: none; padding: 12px 15px; display: flex; align-items: center; border-radius: 8px; margin-bottom: 5px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-    .sidebar a:hover, .sidebar a.active { background-color: var(--primary-color); color: white; transform: translateX(5px); box-shadow: 0 0 10px var(--hover-glow); }
-    .sidebar i { margin-right: 12px; font-size: 1.2rem; }
+    .sidebar {
+      width: var(--sidebar-width-expanded);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: var(--sidebar-bg);
+      color: white;
+      padding: 20px 0;
+      z-index: 1000;
+      box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+      overflow-y: auto;
+      transition: width 0.3s ease-in-out;
+    }
 
-    .main-content { margin-left: 260px; padding: 30px; width: calc(100% - 260px); animation: fadeInUp 0.6s ease-out; }
-    .card-custom { border: none; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); background: white; transition: transform 0.3s ease, box-shadow 0.3s ease; }
-    .card-custom:hover:not(a) { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+    .sidebar.collapsed {
+      width: var(--sidebar-width-collapsed);
+    }
 
-    .table > :not(caption)>*>* { padding: 1rem 0.8rem; }
-    .table-hover > tbody > tr:hover { background-color: #f0f7ff; }
+    .main-content {
+      margin-left: var(--sidebar-width-expanded);
+      padding: 30px;
+      width: calc(100% - var(--sidebar-width-expanded));
+      animation: fadeInUp 0.6s ease-out;
+      transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+    }
+    .main-content.collapsed {
+      margin-left: var(--sidebar-width-collapsed);
+      width: calc(100% - var(--sidebar-width-collapsed));
+    }
 
+    .sidebar a {
+      color: #94a3b8;
+      text-decoration: none;
+      padding: 12px 15px;
+      display: flex;
+      align-items: center;
+      border-radius: 8px;
+      margin-bottom: 5px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .sidebar a:hover, .sidebar a.active {
+      color: white;
+      background-color: var(--primary-color);
+      transform: translateX(5px);
+      box-shadow: 0 0 10px var(--hover-glow);
+    }
+    .sidebar i {
+      margin-right: 12px;
+      font-size: 1.2rem;
+      transition: margin-right 0.3s ease-in-out;
+    }
+
+    .sidebar.collapsed a span, .sidebar.collapsed p {
+      opacity: 0;
+      transition: opacity 0.1s;
+      width: 0;
+      overflow: hidden;
+    }
+    .sidebar a span, .sidebar p {
+      opacity: 1;
+      transition: opacity 0.3s;
+      width: auto;
+    }
+    .sidebar.collapsed a {
+      justify-content: center;
+      padding: 12px 0;
+      margin: 0 5px 5px 5px;
+    }
+    .sidebar.collapsed i {
+      margin-right: 0;
+    }
+    .sidebar.collapsed .sidebar-header-title {
+      display: none;
+    }
+    .sidebar .sidebar-header {
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .sidebar.collapsed .sidebar-header {
+      padding: 20px 0;
+    }
+
+    #toggleSidebar {
+      position: fixed;
+      top: 15px;
+      left: var(--sidebar-width-expanded);
+      z-index: 1001;
+      background-color: var(--sidebar-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: white;
+      transition: left 0.3s ease-in-out;
+      border-radius: 0 8px 8px 0;
+      padding: 8px 10px;
+    }
+    #toggleSidebar.collapsed {
+      left: var(--sidebar-width-collapsed);
+    }
+
+    .card-custom {
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      background: white;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card-custom:hover:not(a) {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    .btn {
+      transition: all 0.2s ease-in-out;
+    }
+    .btn-primary:hover {
+      background-color: var(--primary-light);
+      border-color: var(--primary-light);
+      transform: translateY(-1px);
+    }
+    .form-control, .form-select {
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      border-radius: 8px;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 0.25rem var(--hover-glow);
+    }
+    .table {
+      font-size: 0.95rem;
+    }
+    .table > :not(caption)>*>* {
+      padding: 1rem 0.8rem;
+      vertical-align: middle;
+    }
+    .table-hover > tbody > tr:hover {
+      background-color: #f0f7ff;
+      transition: background-color 0.2s ease;
+    }
     .table > tbody > tr:nth-of-type(odd) {
       background-color: #fcfcfc;
     }
-
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .data-highlight {
+      font-weight: 700;
+      color: #dc3545;
+      transition: color 0.3s ease;
+    }
+    .data-highlight:hover {
+      color: #b00020;
+    }
   </style>
 
   <script>
     function showAlert(actionName) {
-      alert('🛠 Функція "' + actionName + '" знаходиться в розробці.');
+      alert('Функція "' + actionName + '" знаходиться в розробці.');
     }
   </script>
 </head>
 <body>
-<div th:fragment="sidebar(activePage)" class="sidebar d-flex flex-column">
-  <div class="mb-4 d-flex align-items-center ps-2">
-    <i class="bi bi-shield-check fs-4 text-primary"></i>
-    <h4 class="mb-0 fw-bold text-white ms-2">CP System</h4>
+
+<div th:fragment="sidebar(activePage)">
+
+  <div id="sidebar" class="sidebar d-flex flex-column collapsed">
+
+    <div class="sidebar-header d-flex align-items-center ps-2">
+      <i class="bi bi-shield-check fs-4 text-primary"></i>
+      <h4 class="mb-0 fw-bold text-white ms-2 sidebar-header-title">CP System</h4>
+    </div>
+
+    <div class="p-4 pt-0">
+      <a href="/" th:classappend="${activePage == 'dashboard'} ? 'active'"><i class="bi bi-speedometer2"></i> <span>Дашборд</span></a>
+
+      <p class="text-uppercase text-muted small mt-4 mb-2 ps-2 fw-bold">Реєстри</p>
+      <a href="/ui/facilities" th:classappend="${activePage == 'facilities'} ? 'active'"><i class="bi bi-building"></i> <span>Споруди</span></a>
+      <a href="/ui/emergencies" th:classappend="${activePage == 'emergencies'} ? 'active'"><i class="bi bi-exclamation-triangle"></i> <span>Аварії</span></a>
+      <a href="/ui/countermeasures" th:classappend="${activePage == 'countermeasures'} ? 'active'"><i class="bi bi-tools"></i> <span>Заходи</span></a>
+
+      <p class="text-uppercase text-muted small mt-4 mb-2 ps-2 fw-bold">Аналітика</p>
+      <a href="/ui/map" th:classappend="${activePage == 'map'} ? 'active'"><i class="bi bi-map"></i> <span>Карта GIS</span></a>
+      <a href="/ui/dose-measures" th:classappend="${activePage == 'dose-measures'} ? 'active'"><i class="bi bi-radioactive"></i> <span>Дози радіації</span></a>
+      <a href="/ui/impacts" th:classappend="${activePage == 'impacts'} ? 'active'"><i class="bi bi-heart-pulse"></i> <span>Вплив на здоров'я</span></a>
+      <a href="/ui/costs" th:classappend="${activePage == 'costs'} ? 'active'"><i class="bi bi-cash-stack"></i> <span>Фінансові звіти</span></a>
+    </div>
+
   </div>
 
-  <a href="/" th:classappend="${activePage == 'dashboard'} ? 'active'"><i class="bi bi-speedometer2"></i> Дашборд</a>
+  <button id="toggleSidebar" class="btn btn-dark collapsed">
+    <i class="bi bi-chevron-right"></i>
+  </button>
 
-  <p class="text-uppercase text-muted small mt-4 mb-2 ps-2 fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Реєстри</p>
-  <a href="/ui/facilities" th:classappend="${activePage == 'facilities'} ? 'active'"><i class="bi bi-building"></i> Споруди</a>
-  <a href="/ui/emergencies" th:classappend="${activePage == 'emergencies'} ? 'active'"><i class="bi bi-exclamation-triangle"></i> Аварії</a>
-  <a href="/ui/countermeasures" th:classappend="${activePage == 'countermeasures'} ? 'active'"><i class="bi bi-tools"></i> Заходи</a>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const toggleButton = document.getElementById('toggleSidebar');
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.querySelector('.main-content');
+      const icon = toggleButton.querySelector('i');
 
-  <p class="text-uppercase text-muted small mt-4 mb-2 ps-2 fw-bold" style="font-size: 0.7rem; letter-spacing: 1px;">Аналітика</p>
-  <a href="/ui/dose-measures" th:classappend="${activePage == 'dose-measures'} ? 'active'"><i class="bi bi-radioactive"></i> Дози радіації</a>
-  <a href="/ui/impacts" th:classappend="${activePage == 'impacts'} ? 'active'"><i class="bi bi-heart-pulse"></i> Вплив на здоров'я</a>
-  <a href="/ui/costs" th:classappend="${activePage == 'costs'} ? 'active'"><i class="bi bi-cash-stack"></i> Фінансові звіти</a>
+      if (toggleButton && sidebar && mainContent) {
 
+        toggleButton.addEventListener('click', function() {
+          sidebar.classList.toggle('collapsed');
+          mainContent.classList.toggle('collapsed');
+          toggleButton.classList.toggle('collapsed');
+
+          if (sidebar.classList.contains('collapsed')) {
+            icon.classList.replace('bi-chevron-left', 'bi-chevron-right');
+          } else {
+            icon.classList.replace('bi-chevron-right', 'bi-chevron-left');
+          }
+        });
+      }
+    });
+  </script>
 </div>
+
 </body>
 </html>

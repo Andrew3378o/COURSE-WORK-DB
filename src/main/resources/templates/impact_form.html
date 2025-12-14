@@ -14,7 +14,7 @@
                 <select id="emergency" class="form-select" th:field="*{emergency}" required>
                     <option th:each="e : ${emergencies}"
                             th:value="${e.id}"
-                            th:text="${'ID ' + e.id + ': ' + e.communalType + ' (' + e.startDate + ')'}"
+                            th:text="${'ID ' + e.id + ': ' + (e.communalType == null ? 'null' : e.communalType) + ' (' + (e.startDate != null ? #temporals.format(e.startDate, 'yyyy-MM-dd') : 'Немає дати') + ')'}"
                             th:selected="${!isNew and impact.emergency != null and impact.emergency.id == e.id}">
                     </option>
                 </select>
@@ -26,7 +26,7 @@
                     <option value="">-- Не вибрано --</option>
                     <option th:each="dm : ${doseMeasures}"
                             th:value="${dm.id}"
-                            th:text="${'ID ' + dm.id + ': ' + dm.doseValue + ' Зв (' + dm.measurementDate + ')'}"
+                            th:text="${'ID ' + dm.id + ': ' + (dm.doseValue == null ? 'null' : dm.doseValue) + ' Зв (' + (dm.measurementDate != null ? #temporals.format(dm.measurementDate, 'yyyy-MM-dd HH:mm') : 'Немає дати') + ')'}"
                             th:selected="${!isNew and impact.doseMeasure != null and impact.doseMeasure.id == dm.id}">
                     </option>
                 </select>
@@ -34,17 +34,37 @@
 
             <div class="mb-3">
                 <label for="populationGroup" class="form-label fw-bold">Група населення</label>
-                <input type="text" class="form-control" id="populationGroup" th:field="*{populationGroup}" required>
+                <select id="populationGroup" class="form-select" th:field="*{populationGroup}" required>
+                    <option value="">-- Виберіть групу --</option>
+                    <option value="General Public" th:selected="${!isNew and impact.populationGroup == 'General Public'}">Загальне населення</option>
+                    <option value="Emergency Personnel" th:selected="${!isNew and impact.populationGroup == 'Emergency Personnel'}">Персонал НС</option>
+                    <option value="Children" th:selected="${!isNew and impact.populationGroup == 'Children'}">Діти</option>
+                    <option value="Elderly" th:selected="${!isNew and impact.populationGroup == 'Elderly'}">Літні люди</option>
+                </select>
             </div>
 
             <div class="mb-3">
                 <label for="exposureType" class="form-label fw-bold">Тип впливу</label>
-                <input type="text" class="form-control" id="exposureType" th:field="*{exposureType}" required>
+                <select id="exposureType" class="form-select" th:field="*{exposureType}" required>
+                    <option value="">-- Виберіть тип впливу --</option>
+                    <option value="Direct Exposure" th:selected="${!isNew and impact.exposureType == 'Direct Exposure'}">Прямий вплив</option>
+                    <option value="Contamination" th:selected="${!isNew and impact.exposureType == 'Contamination'}">Забруднення території</option>
+                    <option value="Chronic" th:selected="${!isNew and impact.exposureType == 'Chronic'}">Хронічний</option>
+                    <option value="Acute" th:selected="${!isNew and impact.exposureType == 'Acute'}">Гострий</option>
+                </select>
             </div>
 
             <div class="mb-4">
                 <label for="healthEffect" class="form-label fw-bold">Ефект на здоров'я</label>
-                <textarea class="form-control" id="healthEffect" th:field="*{healthEffect}" rows="3"></textarea>
+                <select id="healthEffect" class="form-select" th:field="*{healthEffect}" required>
+                    <option value="">-- Виберіть ефект --</option>
+                    <option value="No Observed Effect" th:selected="${!isNew and impact.healthEffect == 'No Observed Effect'}">Не спостерігався</option>
+                    <option value="Mild Symptoms" th:selected="${!isNew and impact.healthEffect == 'Mild Symptoms'}">Легкі симптоми</option>
+                    <option value="Acute Radiation Syndrome" th:selected="${!isNew and impact.healthEffect == 'Acute Radiation Syndrome'}">Гострий радіаційний синдром</option>
+                    <option value="Long-term Cancers" th:selected="${!isNew and impact.healthEffect == 'Long-term Cancers'}">Довгострокові онкологічні захворювання</option>
+                    <option value="Chemical Burns" th:selected="${!isNew and impact.healthEffect == 'Chemical Burns'}">Хімічні опіки</option>
+                    <option value="Fatalities" th:selected="${!isNew and impact.healthEffect == 'Fatalities'}">Смертельні випадки</option>
+                </select>
             </div>
 
             <hr>

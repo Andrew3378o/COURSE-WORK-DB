@@ -26,13 +26,27 @@
       </div>
 
       <div class="mb-3">
-        <label for="scale" class="form-label fw-bold">Масштаб</label>
-        <input type="text" class="form-control" id="scale" th:field="*{scale}" required>
+        <label for="scale" class="form-label fw-bold">Масштаб (INES Scale)</label>
+        <select id="scale" class="form-select" th:field="*{scale}" required>
+          <option value="">-- Виберіть масштаб (1-7) --</option>
+          <option th:each="i : ${#numbers.sequence(1, 7)}"
+                  th:value="${'INES ' + i}"
+                  th:text="${'INES ' + i}"
+                  th:selected="${!isNew and emergency.scale == ('INES ' + i)}">
+          </option>
+        </select>
       </div>
 
       <div class="mb-3">
         <label for="communalType" class="form-label fw-bold">Тип аварії</label>
-        <input type="text" class="form-control" id="communalType" th:field="*{communalType}" required>
+        <select id="communalType" class="form-select" th:field="*{communalType}" required>
+          <option value="">-- Виберіть тип --</option>
+          <option value="Radiation" th:selected="${!isNew and emergency.communalType == 'Radiation'}">Радіаційна</option>
+          <option value="Chemical" th:selected="${!isNew and emergency.communalType == 'Chemical'}">Хімічна</option>
+          <option value="Biological" th:selected="${!isNew and emergency.communalType == 'Biological'}">Біологічна</option>
+          <option value="Natural" th:selected="${!isNew and emergency.communalType == 'Natural'}">Природна</option>
+          <option value="Technical" th:selected="${!isNew and emergency.communalType == 'Technical'}">Технічна</option>
+        </select>
       </div>
 
       <div class="mb-4">

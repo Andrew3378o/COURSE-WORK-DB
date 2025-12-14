@@ -1,7 +1,7 @@
 package com.project.course_work.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Data; // Припускаючи, що ви використовуєте Lombok @Data
 
 @Data
 @Entity
@@ -20,4 +20,11 @@ public class Facility {
 
     @Column(name = "TechnologyType", length = 100)
     private String technologyType;
+
+    @Column(name = "latitude")
+    private Double latitude;
+
+    @Column(name = "longitude")
+    private Double longitude;
+
 }

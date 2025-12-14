@@ -24,7 +24,7 @@
         <td th:text="${d.id}" class="fw-bold text-muted"></td>
         <td th:text="${d.emergency != null ? d.emergency.id : '-'}"></td>
         <td th:text="${d.measurementDate}"></td>
-        <td class="text-danger fw-bold"><i class="bi bi-radioactive me-2"></i> <span th:text="${d.doseValue}"></span></td>
+        <td class="data-highlight"><i class="bi bi-radioactive me-2"></i> <span th:text="${d.doseValue}"></span></td>
         <td>
           <a th:href="@{/ui/dose-measures/edit/{id}(id=${d.id})}" class="btn btn-sm btn-outline-primary">
             <i class="bi bi-pencil"></i> Редагувати

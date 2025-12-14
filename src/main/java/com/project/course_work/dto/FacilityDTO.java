@@ -7,4 +7,9 @@ public class FacilityDTO {
     private String name;
     private String location;
     private String technologyType;
+
+    // === ДОДАНО ПОЛЯ ДЛЯ GIS ===
+    private Double latitude;
+    private Double longitude;
+    // ===========================
 }

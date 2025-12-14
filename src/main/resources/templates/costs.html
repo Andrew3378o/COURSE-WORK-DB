@@ -27,7 +27,7 @@
         <td th:text="${c.facility != null ? c.facility.name : '-'}"></td>
         <td th:text="${c.emergency != null ? c.emergency.id : '-'}"></td>
         <td th:text="${c.costDate}"></td>
-        <td class="text-success fw-bold">₴ <span th:text="${c.costValue}"></span></td>
+        <td class="data-highlight text-success fw-bold">₴ <span th:text="${c.costValue}"></span></td>
         <td th:text="${c.impact != null ? c.impact.healthEffect : '-'}"></td>
         <td>
           <a th:href="@{/ui/costs/edit/{id}(id=${c.id})}" class="btn btn-sm btn-outline-primary">

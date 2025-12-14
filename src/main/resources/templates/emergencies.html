@@ -4,40 +4,216 @@
 <body>
 <div th:replace="~{fragments :: sidebar('emergencies')}"></div>
 <div class="main-content">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Журнал надзвичайних ситуацій</h2>
-        <a href="/ui/emergencies/new" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Додати</a>
-    </div>
-    <div class="card-custom p-4">
-        <table class="table table-hover align-middle">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Обʼєкт</th>
-                <th>Дата початку</th>
-                <th>Масштаб</th>
-                <th>Тип</th>
-                <th>Опис</th>
-                <th>Дії</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="e : ${list}">
-                <td th:text="${e.id}" class="fw-bold text-muted"></td>
-                <td th:text="${e.facility != null ? e.facility.name : '-'}"></td>
-                <td th:text="${e.startDate}"></td>
-                <td><span class="badge bg-danger" th:text="${e.scale}"></span></td>
-                <td><span class="badge bg-warning text-dark" th:text="${e.communalType}"></span></td>
-                <td th:text="${e.description}"></td>
-                <td>
-                    <a th:href="@{/ui/emergencies/edit/{id}(id=${e.id})}" class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-pencil"></i> Редагувати
-                    </a>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+
+    <div class="row g-4">
+
+        <div class="col-md-4">
+            <div class="vstack gap-4 h-100">
+
+                <div class="card-custom p-4">
+                    <h5 class="fw-bold mb-3">Розподіл НС за типом</h5>
+                    <div style="height: 150px;"><canvas id="typeChart"></canvas></div>
+                </div>
+
+                <div class="card-custom p-4">
+                    <h5 class="fw-bold mb-3">Розподіл НС за масштабом (INES)</h5>
+                    <div style="height: 150px;"><canvas id="scaleChart"></canvas></div>
+                </div>
+
+                <div class="card-custom p-4">
+                    <h5 class="fw-bold mb-3">Динаміка НС за роками</h5>
+                    <div style="height: 150px;"><canvas id="trendChart"></canvas></div>
+                </div>
+
+                <div class="card-custom p-4">
+                    <h5 class="fw-bold mb-3">Середня тривалість НС за типом (дні)</h5>
+                    <div style="height: 150px;"><canvas id="durationChart"></canvas></div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold mb-0">Журнал надзвичайних ситуацій</h2>
+                <a href="/ui/emergencies/new" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Додати</a>
+            </div>
+
+            <div class="card-custom p-4 mb-4">
+                <form th:action="@{/ui/emergencies}" method="get" class="d-flex align-items-center">
+                    <label class="form-label mb-0 me-3 fw-bold text-muted small">Фільтр:</label>
+
+                    <select name="scale" class="form-select me-2" style="width: 200px;">
+                        <option value="">-- Всі масштаби (INES) --</option>
+                        <option th:each="s : ${possibleScales}"
+                                th:value="${s}"
+                                th:text="${s}"
+                                th:selected="${s == selectedScale}">
+                        </option>
+                    </select>
+
+                    <select name="type" class="form-select me-2" style="width: 180px;">
+                        <option value="">-- Всі типи --</option>
+                        <option th:each="t : ${possibleTypes}"
+                                th:value="${t}"
+                                th:text="${t}"
+                                th:selected="${t == selectedType}">
+                        </option>
+                    </select>
+
+                    <button type="submit" class="btn btn-info text-white me-2">
+                        <i class="bi bi-funnel-fill"></i> Фільтрувати
+                    </button>
+                    <a th:href="@{/ui/emergencies}" class="btn btn-outline-secondary">Скинути</a>
+                </form>
+            </div>
+            <div class="card-custom p-4">
+                <table class="table table-hover align-middle">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Обʼєкт</th>
+                        <th>Дата початку</th>
+                        <th>Масштаб</th>
+                        <th>Тип</th>
+                        <th>Опис</th>
+                        <th>Дії</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="e : ${list}">
+                        <td th:text="${e.id}" class="fw-bold text-muted"></td>
+                        <td th:text="${e.facility != null ? e.facility.name : '-'}"></td>
+                        <td th:text="${e.startDate}"></td>
+                        <td><span class="badge bg-danger" th:text="${e.scale}"></span></td>
+                        <td><span class="badge bg-warning text-dark" th:text="${e.communalType}"></span></td>
+                        <td th:text="${e.description}"></td>
+                        <td>
+                            <a th:href="@{/ui/emergencies/edit/{id}(id=${e.id})}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i> Редагувати
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div th:if="${list.isEmpty()}" class="alert alert-warning mt-3">
+                    Не знайдено жодної надзвичайної ситуації відповідно до вибраних фільтрів.
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    const DEFAULT_OPTIONS = {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: true,
+        plugins: {
+            title: { display: false }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: '#eee' }
+            },
+            x: {
+                grid: { display: false }
+            }
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // --- ГРАФІК 1: ТИПИ (КРУГОВА) ---
+        const typeCtx = document.getElementById('typeChart').getContext('2d');
+        new Chart(typeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Хімічні', 'Радіаційні', 'Природні', 'Біологічні'],
+                datasets: [{
+                    data: [12, 5, 8, 3],
+                    backgroundColor: ['#ffc107', '#dc3545', '#0dcaf0', '#198754'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                ...DEFAULT_OPTIONS,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // --- ГРАФІК 2: МАСШТАБИ INES (ГІСТОГРАМА) ---
+        const scaleCtx = document.getElementById('scaleChart').getContext('2d');
+        new Chart(scaleCtx, {
+            type: 'bar',
+            data: {
+                labels: ['INES 1', 'INES 3', 'INES 5', 'INES 7'],
+                datasets: [{
+                    label: 'Кількість НС',
+                    data: [8, 10, 3, 1],
+                    backgroundColor: '#0d6efd',
+                    borderColor: '#0d6efd',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                ...DEFAULT_OPTIONS,
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // --- ГРАФІК 3: ДИНАМІКА (ЛІНІЙНИЙ) ---
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: ['2020', '2021', '2022', '2023', '2024'],
+                datasets: [{
+                    label: 'Кількість НС',
+                    data: [15, 22, 18, 28, 35],
+                    backgroundColor: 'rgba(25, 135, 84, 0.5)',
+                    borderColor: '#198754',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                ...DEFAULT_OPTIONS,
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // --- ГРАФІК 4: СЕРЕДНЯ ТРИВАЛІСТЬ (ГОРИЗОНТАЛЬНА ГІСТОГРАМА) ---
+        const durationCtx = document.getElementById('durationChart').getContext('2d');
+        new Chart(durationCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Радіаційні', 'Хімічні', 'Природні'],
+                datasets: [{
+                    label: 'Середня тривалість (дні)',
+                    data: [14.5, 3.2, 5.0],
+                    backgroundColor: ['#dc3545', '#ffc107', '#0dcaf0'],
+                }]
+            },
+            options: {
+                ...DEFAULT_OPTIONS,
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Дні' }
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    });
+</script>
 </body>
 </html>

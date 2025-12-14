@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <div th:replace="~{fragments :: head_styles}"></div>
+
+    <title>Карта Об'єктів та НС</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+    <style>
+        #map {
+            height: 80vh;
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+
+
+        .leaflet-container .leaflet-control,
+        .leaflet-container .leaflet-control a,
+        .leaflet-container .leaflet-control button,
+        .leaflet-container .leaflet-control div {
+            box-sizing: content-box;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+
+        .leaflet-control-zoom-in,
+        .leaflet-control-zoom-out {
+            line-height: 20px !important;
+            text-align: center;
+        }
+
+
+        .sidebar {
+            z-index: 1050 !important;
+        }
+
+        .leaflet-control-container {
+            z-index: 99;
+        }
+
+        .info.legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            line-height: 18px;
+            color: #555;
+        }
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.7;
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments :: sidebar('map')}"></div>
+
+<div class="main-content">
+
+    <h2 class="fw-bolder mb-4 text-primary"><i class="bi bi-geo-alt-fill me-2"></i> Геоінформаційна Система (GIS)</h2>
+    <p class="text-muted lead">Візуалізація географічного розташування всіх об'єктів та зареєстрованих надзвичайних ситуацій.</p>
+
+    <div id="map"></div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+
+        const facilities = [[${facilities}]];
+        const emergencies = [[${emergencies}]];
+
+        const initialCoords = [48.3794, 31.1656];
+        const map = L.map('map').setView(initialCoords, 6);
+
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        const facilityIcon = L.icon({
+            iconUrl: 'data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="30" height="40"><path fill="%230d6efd" d="M172.268 501.67C26.977 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.977 99.031-172.268 309.67-9.535 13.774-29.932 13.773-39.464 0zM192 256c35.346 0 64-28.654 64-64s-28.654-64-64-64-64 28.654-64 64 28.654 64 64 64z"/></svg>',
+            iconSize: [30, 40],
+            iconAnchor: [15, 40],
+            popupAnchor: [0, -35]
+        });
+
+        const emergencyIcon = L.icon({
+            iconUrl: 'data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="30" height="40"><path fill="%23dc3545" d="M172.268 501.67C26.977 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.977 99.031-172.268 309.67-9.535 13.774-29.932 13.773-39.464 0zM192 256c35.346 0 64-28.654 64-64s-28.654-64-64-64-64 28.654-64 64 28.654 64 64 64z"/></svg>',
+            iconSize: [30, 40],
+            iconAnchor: [15, 40],
+            popupAnchor: [0, -35]
+        });
+
+
+        let facilitiesLayer = L.featureGroup();
+        let emergenciesLayer = L.featureGroup();
+        let hasRealData = false;
+        let bounds = L.latLngBounds();
+
+        facilities.forEach(facility => {
+            const lat = facility.latitude;
+            const lng = facility.longitude;
+
+            if (lat && lng) {
+                const marker = L.marker([lat, lng], { icon: facilityIcon })
+                    .bindPopup(`
+                        <b>Об'єкт: ${facility.name}</b><br>
+                        Тип: ${facility.technologyType || 'Невідомий'}<br>
+                        Локація: ${facility.location || 'N/A'}<br>
+                        <a href='/ui/facilities/edit/${facility.id}'>Редагувати</a>
+                    `);
+                facilitiesLayer.addLayer(marker);
+                bounds.extend([lat, lng]);
+                hasRealData = true;
+            }
+        });
+
+        emergencies.forEach(emergency => {
+            const lat = emergency.facility && emergency.facility.latitude ? emergency.facility.latitude : null;
+            const lng = emergency.facility && emergency.facility.longitude ? emergency.facility.longitude : null;
+
+            if (lat && lng) {
+                const marker = L.marker([lat, lng], { icon: emergencyIcon })
+                    .bindPopup(`
+                        <b>НС: ${emergency.communalType}</b><br>
+                        Об'єкт: ${emergency.facility.name}<br>
+                        Масштаб: ${emergency.scale}<br>
+                        <a href='/ui/emergencies/edit/${emergency.id}'>Деталі НС</a>
+                    `);
+                emergenciesLayer.addLayer(marker);
+                bounds.extend([lat, lng]);
+                hasRealData = true;
+            }
+        });
+
+        facilitiesLayer.addTo(map);
+        emergenciesLayer.addTo(map);
+
+        const overlayMaps = {
+            "Об'єкти (Сині)": facilitiesLayer,
+            "Надзвичайні Ситуації (Червоні)": emergenciesLayer
+        };
+
+        L.control.layers(null, overlayMaps, { collapsed: false }).addTo(map);
+
+        const legend = L.control({position: 'bottomright'});
+
+        legend.onAdd = function (map) {
+            const div = L.DomUtil.create('div', 'info legend');
+            div.innerHTML += '<h4>Легенда</h4>';
+
+            div.innerHTML += '<i style="background-image: url(data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 384 512\'><path fill=\'%230d6efd\' d=\'M192 0c106 0 192 86 192 192 0 134-172 321-192 321S0 326 0 192C0 86 86 0 192 0z\'/></svg>); background-repeat: no-repeat;"></i> Об\'єкти ЦЗ<br>';
+            div.innerHTML += '<i style="background-image: url(data:image/svg+xml;charset=UTF-8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 384 512\'><path fill=\'%23dc3545\' d=\'M192 0c106 0 192 86 192 192 0 134-172 321-192 321S0 326 0 192C0 86 86 0 192 0z\'/></svg>); background-repeat: no-repeat;"></i> Надзвичайна Ситуація<br>';
+
+            return div;
+        };
+
+        legend.addTo(map);
+
+
+        setTimeout(function() {
+            map.invalidateSize();
+            if (hasRealData && bounds.isValid()) {
+                map.fitBounds(bounds.pad(0.2));
+            }
+        }, 500);
+
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            sidebar.addEventListener('transitionend', function() {
+                map.invalidateSize();
+            });
+        }
+    });
+</script>
+
+</body>
+</html>

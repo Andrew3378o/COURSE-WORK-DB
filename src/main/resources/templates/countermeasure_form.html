@@ -16,7 +16,14 @@
 
             <div class="mb-3">
                 <label for="type" class="form-label fw-bold">Тип</label>
-                <input type="text" class="form-control" id="type" th:field="*{type}" required>
+                <select id="type" class="form-select" th:field="*{type}" required>
+                    <option value="">-- Виберіть тип заходу --</option>
+                    <option value="Protective (Shelter/Evacuation)" th:selected="${!isNew and counterMeasure.type == 'Protective (Shelter/Evacuation)'}">Захисний (Укриття/Евакуація)</option>
+                    <option value="Medical (Prophylaxis/Treatment)" th:selected="${!isNew and counterMeasure.type == 'Medical (Prophylaxis/Treatment)'}">Медичний (Профілактика/Лікування)</option>
+                    <option value="Technical (Decontamination/Localization)" th:selected="${!isNew and counterMeasure.type == 'Technical (Decontamination/Localization)'}">Технічний (Дезактивація/Локалізація)</option>
+                    <option value="Informational (Warning)" th:selected="${!isNew and counterMeasure.type == 'Informational (Warning)'}">Інформаційний (Оповіщення)</option>
+                    <option value="Resource Mobilization" th:selected="${!isNew and counterMeasure.type == 'Resource Mobilization'}">Мобілізація ресурсів</option>
+                </select>
             </div>
 
             <div class="mb-4">
