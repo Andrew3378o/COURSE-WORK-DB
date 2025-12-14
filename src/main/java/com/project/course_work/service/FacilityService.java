@@ -62,4 +62,8 @@ public class FacilityService {
     public List<Facility> searchByLocation(String location) {
         return repository.findByLocationContainingIgnoreCase(location);
     }
+
+    public void deleteById(Integer id) {
+        repository.deleteById(id);
+    }
 }

@@ -106,6 +106,16 @@ public class WebController {
         return "redirect:/ui/facilities";
     }
 
+    @GetMapping("/ui/facilities/delete/{id}")
+    public String deleteFacility(@PathVariable Integer id) {
+        try {
+            facilityService.deleteById(id);
+        } catch (Exception e) {
+            System.err.println("Помилка при видаленні об'єкта: " + e.getMessage());
+        }
+        return "redirect:/ui/facilities";
+    }
+
     @GetMapping("/ui/emergencies")
     public String showEmergencies(
             @RequestParam(value = "scale", required = false) String scale,
