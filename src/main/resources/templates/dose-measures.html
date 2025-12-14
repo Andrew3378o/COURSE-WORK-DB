@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head_styles}"></head>
+<body>
+<div th:replace="~{fragments :: sidebar('dose-measures')}"></div>
+<div class="main-content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Моніторинг радіаційного фону</h2>
+    <a href="/ui/dose-measures/new" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Додати</a>
+  </div>
+  <div class="card-custom p-4">
+    <table class="table table-hover align-middle">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Аварія</th>
+        <th>Дата виміру</th>
+        <th>Доза (Зв)</th>
+        <th>Дії</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr th:each="d : ${list}">
+        <td th:text="${d.id}" class="fw-bold text-muted"></td>
+        <td th:text="${d.emergency != null ? d.emergency.id : '-'}"></td>
+        <td th:text="${d.measurementDate}"></td>
+        <td class="text-danger fw-bold"><i class="bi bi-radioactive me-2"></i> <span th:text="${d.doseValue}"></span></td>
+        <td>
+          <a th:href="@{/ui/dose-measures/edit/{id}(id=${d.id})}" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-pencil"></i> Редагувати
+          </a>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>

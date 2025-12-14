@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head_styles}"></head>
+<body>
+<div th:replace="~{fragments :: sidebar('costs')}"></div>
+<div class="main-content">
+  <h2 class="fw-bold mb-4" th:text="${isNew} ? 'Додати нову витрату' : 'Редагувати витрату #' + ${cost.id}">Форма витрат</h2>
+  <div class="card-custom p-4">
+    <form th:action="@{/ui/costs/save}" th:object="${cost}" method="post">
+      <input type="hidden" th:field="*{id}" />
+
+      <div class="mb-3">
+        <label for="facility" class="form-label fw-bold">Об'єкт (Facility)</label>
+        <select id="facility" class="form-select" th:field="*{facility}" required>
+          <option th:each="f : ${facilities}"
+                  th:value="${f.id}"
+                  th:text="${f.name + ' (' + f.location + ')'}"
+                  th:selected="${!isNew and cost.facility != null and cost.facility.id == f.id}">
+          </option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="emergency" class="form-label fw-bold">Пов'язана аварія</label>
+        <select id="emergency" class="form-select" th:field="*{emergency}" required>
+          <option th:each="e : ${emergencies}"
+                  th:value="${e.id}"
+                  th:text="${'ID ' + e.id + ': ' + e.communalType + ' (' + e.startDate + ')'}"
+                  th:selected="${!isNew and cost.emergency != null and cost.emergency.id == e.id}">
+          </option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="impact" class="form-label fw-bold">Вплив (Опціонально)</label>
+        <select id="impact" class="form-select" th:field="*{impact}">
+          <option value="">-- Не вибрано --</option>
+          <option th:each="i : ${impacts}"
+                  th:value="${i.id}"
+                  th:text="${'ID ' + i.id + ': ' + i.healthEffect}"
+                  th:selected="${!isNew and cost.impact != null and cost.impact.id == i.id}">
+          </option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="costDate" class="form-label fw-bold">Дата витрати</label>
+        <input type="date" class="form-control" id="costDate" th:field="*{costDate}" required>
+      </div>
+
+      <div class="mb-4">
+        <label for="costValue" class="form-label fw-bold">Сума (грн)</label>
+        <input type="number" step="0.01" class="form-control" id="costValue" th:field="*{costValue}" required>
+      </div>
+
+      <hr>
+      <button type="submit" class="btn btn-success me-2"><i class="bi bi-save me-2"></i> Зберегти</button>
+      <a href="/ui/costs" class="btn btn-outline-secondary">Скасувати</a>
+    </form>
+  </div>
+</div>
+</body>
+</html>

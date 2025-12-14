@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head_styles}"></head>
+<body>
+<div th:replace="~{fragments :: sidebar('impacts')}"></div>
+<div class="main-content">
+    <h2 class="fw-bold mb-4" th:text="${isNew} ? 'Додати новий запис про вплив' : 'Редагувати запис про вплив #' + ${impact.id}">Форма впливу</h2>
+    <div class="card-custom p-4">
+        <form th:action="@{/ui/impacts/save}" th:object="${impact}" method="post">
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="mb-3">
+                <label for="emergency" class="form-label fw-bold">Пов'язана аварія</label>
+                <select id="emergency" class="form-select" th:field="*{emergency}" required>
+                    <option th:each="e : ${emergencies}"
+                            th:value="${e.id}"
+                            th:text="${'ID ' + e.id + ': ' + e.communalType + ' (' + e.startDate + ')'}"
+                            th:selected="${!isNew and impact.emergency != null and impact.emergency.id == e.id}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="doseMeasure" class="form-label fw-bold">Вимір дози (Опціонально)</label>
+                <select id="doseMeasure" class="form-select" th:field="*{doseMeasure}">
+                    <option value="">-- Не вибрано --</option>
+                    <option th:each="dm : ${doseMeasures}"
+                            th:value="${dm.id}"
+                            th:text="${'ID ' + dm.id + ': ' + dm.doseValue + ' Зв (' + dm.measurementDate + ')'}"
+                            th:selected="${!isNew and impact.doseMeasure != null and impact.doseMeasure.id == dm.id}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label for="populationGroup" class="form-label fw-bold">Група населення</label>
+                <input type="text" class="form-control" id="populationGroup" th:field="*{populationGroup}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="exposureType" class="form-label fw-bold">Тип впливу</label>
+                <input type="text" class="form-control" id="exposureType" th:field="*{exposureType}" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="healthEffect" class="form-label fw-bold">Ефект на здоров'я</label>
+                <textarea class="form-control" id="healthEffect" th:field="*{healthEffect}" rows="3"></textarea>
+            </div>
+
+            <hr>
+            <button type="submit" class="btn btn-success me-2"><i class="bi bi-save me-2"></i> Зберегти</button>
+            <a href="/ui/impacts" class="btn btn-outline-secondary">Скасувати</a>
+        </form>
+    </div>
+</div>
+</body>
+</html>

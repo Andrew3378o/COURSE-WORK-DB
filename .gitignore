@@ -1,3 +1,4 @@
+### BUILD ARTIFACTS ###
 HELP.md
 .gradle
 build/
@@ -5,6 +6,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+### IDE SPECIFIC FILES ###
 ### STS ###
 .apt_generated
 .classpath
@@ -35,3 +37,14 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# -----------------------------
+# ADDED: Spring Boot / Runtime Files
+# -----------------------------
+
+### Configuration/Secret Files ###
+# Локальні конфігурації з паролями
+/src/main/resources/application.properties
+/src/main/resources/application.yml
+/src/main/resources/*.log
+/target/

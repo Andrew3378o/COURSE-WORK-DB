@@ -6,6 +6,7 @@ import com.project.course_work.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional; // ДОДАНО
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +44,14 @@ public class CostService {
         entity.setCostValue(dto.getCostValue());
         entity.setCostDate(dto.getCostDate());
 
+        return costRepository.save(entity);
+    }
+
+    public Optional<Cost> getById(Integer id) {
+        return costRepository.findById(id);
+    }
+
+    public Cost save(Cost entity) {
         return costRepository.save(entity);
     }
 

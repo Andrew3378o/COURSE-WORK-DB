@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head_styles}"></head>
+<body>
+<div th:replace="~{fragments :: sidebar('emergencies')}"></div>
+<div class="main-content">
+  <h2 class="fw-bold mb-4" th:text="${isNew} ? 'Додати нову аварію' : 'Редагувати аварію #' + ${emergency.id}">Форма аварії</h2>
+  <div class="card-custom p-4">
+    <form th:action="@{/ui/emergencies/save}" th:object="${emergency}" method="post">
+      <input type="hidden" th:field="*{id}" />
+
+      <div class="mb-3">
+        <label for="facility" class="form-label fw-bold">Об'єкт цивільного захисту (Facility)</label>
+        <select id="facility" class="form-select" th:field="*{facility}" required>
+          <option th:each="f : ${facilities}"
+                  th:value="${f.id}"
+                  th:text="${f.name + ' (' + f.location + ')'}"
+                  th:selected="${!isNew and emergency.facility != null and emergency.facility.id == f.id}">
+          </option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="startDate" class="form-label fw-bold">Дата початку</label>
+        <input type="date" class="form-control" id="startDate" th:field="*{startDate}" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="scale" class="form-label fw-bold">Масштаб</label>
+        <input type="text" class="form-control" id="scale" th:field="*{scale}" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="communalType" class="form-label fw-bold">Тип аварії</label>
+        <input type="text" class="form-control" id="communalType" th:field="*{communalType}" required>
+      </div>
+
+      <div class="mb-4">
+        <label for="description" class="form-label fw-bold">Опис</label>
+        <textarea class="form-control" id="description" th:field="*{description}" rows="3"></textarea>
+      </div>
+
+      <hr>
+      <button type="submit" class="btn btn-success me-2"><i class="bi bi-save me-2"></i> Зберегти</button>
+      <a href="/ui/emergencies" class="btn btn-outline-secondary">Скасувати</a>
+    </form>
+  </div>
+</div>
+</body>
+</html>

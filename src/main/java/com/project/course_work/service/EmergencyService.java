@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional; // ДОДАНО
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,14 @@ public class EmergencyService {
         entity.setScale(dto.getScale());
         entity.setCommunalType(dto.getCommunalType());
         entity.setDescription(dto.getDescription());
+        return emergencyRepository.save(entity);
+    }
+
+    public Optional<Emergency> getById(Integer id) {
+        return emergencyRepository.findById(id);
+    }
+
+    public Emergency save(Emergency entity) {
         return emergencyRepository.save(entity);
     }
 

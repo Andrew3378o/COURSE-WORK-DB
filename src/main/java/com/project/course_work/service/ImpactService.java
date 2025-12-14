@@ -7,6 +7,7 @@ import com.project.course_work.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional; // ДОДАНО: Для методу getById
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +32,15 @@ public class ImpactService {
         entity.setPopulationGroup(dto.getPopulationGroup());
         entity.setExposureType(dto.getExposureType());
         entity.setHealthEffect(dto.getHealthEffect());
+        return impactRepository.save(entity);
+    }
+
+    public Optional<Impact> getById(Integer id) {
+        return impactRepository.findById(id);
+    }
+
+    public Impact save(Impact entity) {
+        // Якщо entity має ID, це оновлення; якщо ні — створення.
         return impactRepository.save(entity);
     }
 

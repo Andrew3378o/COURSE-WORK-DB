@@ -1,11 +1,12 @@
 package com.project.course_work.service;
 
-import com.project.course_work.dto.*;
-import com.project.course_work.entity.*;
-import com.project.course_work.repository.*;
+import com.project.course_work.dto.FacilityDTO;
+import com.project.course_work.entity.Facility;
+import com.project.course_work.repository.FacilityRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +18,14 @@ public class FacilityService {
         entity.setName(dto.getName());
         entity.setLocation(dto.getLocation());
         entity.setTechnologyType(dto.getTechnologyType());
+        return repository.save(entity);
+    }
+
+    public Optional<Facility> getById(Integer id) {
+        return repository.findById(id);
+    }
+
+    public Facility save(Facility entity) {
         return repository.save(entity);
     }
 

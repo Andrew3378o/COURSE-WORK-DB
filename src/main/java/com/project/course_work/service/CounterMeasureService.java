@@ -6,6 +6,7 @@ import com.project.course_work.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Optional; // ДОДАНО
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +18,14 @@ public class CounterMeasureService {
         entity.setName(dto.getName());
         entity.setType(dto.getType());
         entity.setDescription(dto.getDescription());
+        return repository.save(entity);
+    }
+
+    public Optional<CounterMeasure> getById(Integer id) {
+        return repository.findById(id);
+    }
+
+    public CounterMeasure save(CounterMeasure entity) {
         return repository.save(entity);
     }
 
