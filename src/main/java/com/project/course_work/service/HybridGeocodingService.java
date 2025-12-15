@@ -11,7 +11,6 @@ public class HybridGeocodingService {
 
     public HybridGeocodingService() {
 
-        // Україна
         staticLocations.put("ЧАЕС", new double[]{51.389, 30.099});
         staticLocations.put("ПРИП'ЯТЬ", new double[]{51.405, 30.053});
         staticLocations.put("КИЇВ", new double[]{50.4501, 30.5234});
@@ -24,7 +23,6 @@ public class HybridGeocodingService {
         staticLocations.put("РІВНЕ", new double[]{50.6199, 26.2516});
         staticLocations.put("УМАНЬ", new double[]{48.7500, 30.2200});
 
-        // США (Ключові міста)
         staticLocations.put("НЬЮ-ЙОРК", new double[]{40.7128, -74.0060});
         staticLocations.put("ЛОС-АНДЖЕЛЕС", new double[]{34.0522, -118.2437});
         staticLocations.put("ЧІКАГО", new double[]{41.8781, -87.6298});
@@ -33,7 +31,6 @@ public class HybridGeocodingService {
         staticLocations.put("ВАШИНГТОН", new double[]{38.8951, -77.0364});
         staticLocations.put("США", new double[]{40.1533, -76.7253});
 
-        // Європа
         staticLocations.put("ЛОНДОН", new double[]{51.5074, 0.1278});
         staticLocations.put("ПАРИЖ", new double[]{48.8566, 2.3522});
         staticLocations.put("БЕРЛІН", new double[]{52.5200, 13.4050});
@@ -48,7 +45,6 @@ public class HybridGeocodingService {
         staticLocations.put("ШВЕЦІЯ", new double[]{60.3710, 18.1546});
         staticLocations.put("ШВЕЙЦАРІЯ", new double[]{46.722, 6.840});
 
-        // Азія/Світ
         staticLocations.put("ТОКІО", new double[]{35.6895, 139.6917});
         staticLocations.put("СЕУЛ", new double[]{37.5665, 126.9780});
         staticLocations.put("ПЕКІН", new double[]{39.9042, 116.4074});

@@ -3,7 +3,7 @@ package com.project.course_work.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -22,5 +22,5 @@ public class DoseMeasure {
     private BigDecimal doseValue;
 
     @Column(name = "MeasurementDate")
-    private LocalDate measurementDate;
+    private LocalDateTime measurementDate;
 }

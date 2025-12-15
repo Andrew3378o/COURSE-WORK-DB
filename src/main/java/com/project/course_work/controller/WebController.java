@@ -202,7 +202,7 @@ public class WebController {
     @GetMapping("/ui/dose-measures/new")
     public String showNewDoseMeasureForm(Model model) {
         model.addAttribute("doseMeasure", new DoseMeasure());
-        model.addAttribute("emergencies", emergencyRepository.findAll());
+        model.addAttribute("emergencies", emergencyRepository.findAllWithFacilities()); // ВИПРАВЛЕНО
         model.addAttribute("isNew", true);
         return "dose_measure_form";
     }
@@ -211,8 +211,9 @@ public class WebController {
         DoseMeasure dm = doseMeasureService.getById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "DoseMeasure not found"));
         model.addAttribute("doseMeasure", dm);
-        model.addAttribute("emergencies", emergencyRepository.findAll());
+        model.addAttribute("emergencies", emergencyRepository.findAllWithFacilities()); // ВИПРАВЛЕНО
         model.addAttribute("isNew", false);
+        model.addAttribute("activePage", "dose-measures");
         return "dose_measure_form";
     }
     @PostMapping("/ui/dose-measures/save")
@@ -221,18 +222,30 @@ public class WebController {
         return "redirect:/ui/dose-measures";
     }
 
+    @GetMapping("/ui/dose-measures/delete/{id}")
+    public String deleteDoseMeasure(@PathVariable Integer id) {
+        try {
+            doseMeasureService.deleteById(id);
+        } catch (Exception e) {
+            System.err.println("Помилка при видаленні виміру дози: " + e.getMessage());
+        }
+        return "redirect:/ui/dose-measures";
+    }
+
 
     @GetMapping("/ui/impacts")
     public String showImpacts(Model model) {
         model.addAttribute("list", impactRepository.findAll());
+        model.addAttribute("activePage", "impacts");
         return "impacts";
     }
     @GetMapping("/ui/impacts/new")
     public String showNewImpactForm(Model model) {
         model.addAttribute("impact", new Impact());
-        model.addAttribute("emergencies", emergencyRepository.findAll());
+        model.addAttribute("emergencies", emergencyRepository.findAllWithFacilities()); // ВИПРАВЛЕНО
         model.addAttribute("doseMeasures", doseMeasureRepository.findAll());
         model.addAttribute("isNew", true);
+        model.addAttribute("activePage", "impacts");
         return "impact_form";
     }
     @GetMapping("/ui/impacts/edit/{id}")
@@ -240,14 +253,25 @@ public class WebController {
         Impact impact = impactService.getById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Impact not found"));
         model.addAttribute("impact", impact);
-        model.addAttribute("emergencies", emergencyRepository.findAll());
+        model.addAttribute("emergencies", emergencyRepository.findAllWithFacilities()); // ВИПРАВЛЕНО
         model.addAttribute("doseMeasures", doseMeasureRepository.findAll());
         model.addAttribute("isNew", false);
+        model.addAttribute("activePage", "impacts");
         return "impact_form";
     }
     @PostMapping("/ui/impacts/save")
     public String saveImpact(@ModelAttribute("impact") Impact impact) {
         impactService.save(impact);
+        return "redirect:/ui/impacts";
+    }
+
+    @GetMapping("/ui/impacts/delete/{id}")
+    public String deleteImpact(@PathVariable Integer id) {
+        try {
+            impactService.deleteById(id);
+        } catch (Exception e) {
+            System.err.println("Помилка при видаленні впливу: " + e.getMessage());
+        }
         return "redirect:/ui/impacts";
     }
 
@@ -260,9 +284,10 @@ public class WebController {
     public String showNewCostForm(Model model) {
         model.addAttribute("cost", new Cost());
         model.addAttribute("facilities", facilityRepository.findAll());
-        model.addAttribute("emergencies", emergencyRepository.findAll());
-        model.addAttribute("impacts", impactRepository.findAll());
-        model.addAttribute("isNew", true);
+        model.addAttribute("emergencies", emergencyRepository.findAllWithFacilities()); // ВИПРАВЛЕНО
+        model.addAttribute("impacts", impactRepository.findAllWithEmergencyAndDose()); // ВИПРАВЛЕНО
+        model.addAttribute("isNew", true); // ДОДАНО
+        model.addAttribute("activePage", "costs"); // ДОДАНО
         return "cost_form";
     }
     @GetMapping("/ui/costs/edit/{id}")
@@ -271,9 +296,10 @@ public class WebController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cost not found"));
         model.addAttribute("cost", cost);
         model.addAttribute("facilities", facilityRepository.findAll());
-        model.addAttribute("emergencies", emergencyRepository.findAll());
-        model.addAttribute("impacts", impactRepository.findAll());
-        model.addAttribute("isNew", false);
+        model.addAttribute("emergencies", emergencyRepository.findAllWithFacilities()); // ВИПРАВЛЕНО
+        model.addAttribute("impacts", impactRepository.findAllWithEmergencyAndDose()); // ВИПРАВЛЕНО
+        model.addAttribute("isNew", false); // ДОДАНО
+        model.addAttribute("activePage", "costs"); // ДОДАНО
         return "cost_form";
     }
     @PostMapping("/ui/costs/save")

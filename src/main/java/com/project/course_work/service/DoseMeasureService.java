@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional; // ДОДАНО: Для методу getById
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +31,6 @@ public class DoseMeasureService {
     }
 
     public DoseMeasure save(DoseMeasure entity) {
-        // Якщо entity має ID, це оновлення; якщо ні — створення.
         return doseRepository.save(entity);
     }
 
@@ -45,5 +44,9 @@ public class DoseMeasureService {
 
     public List<DoseMeasure> getHighDoses(BigDecimal value) {
         return doseRepository.findByDoseValueGreaterThan(value);
+    }
+
+    public void deleteById(Integer id) {
+        doseRepository.deleteById(id);
     }
 }

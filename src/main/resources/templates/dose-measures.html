@@ -13,7 +13,7 @@
       <thead>
       <tr>
         <th>ID</th>
-        <th>Аварія</th>
+        <th>Об'єкт</th>
         <th>Дата виміру</th>
         <th>Доза (Зв)</th>
         <th>Дії</th>
@@ -22,12 +22,22 @@
       <tbody>
       <tr th:each="d : ${list}">
         <td th:text="${d.id}" class="fw-bold text-muted"></td>
-        <td th:text="${d.emergency != null ? d.emergency.id : '-'}"></td>
+
+        <td th:if="${d.emergency != null}">
+          <strong th:text="${d.emergency.facility != null ? (d.emergency.facility.name ?: '-') : '-'}"></strong>
+        </td>
+        <td th:unless="${d.emergency != null}">-</td>
+
         <td th:text="${d.measurementDate}"></td>
         <td class="data-highlight"><i class="bi bi-radioactive me-2"></i> <span th:text="${d.doseValue}"></span></td>
         <td>
-          <a th:href="@{/ui/dose-measures/edit/{id}(id=${d.id})}" class="btn btn-sm btn-outline-primary">
+          <a th:href="@{/ui/dose-measures/edit/{id}(id=${d.id})}" class="btn btn-sm btn-outline-primary me-2">
             <i class="bi bi-pencil"></i> Редагувати
+          </a>
+          <a th:href="@{/ui/dose-measures/delete/{id}(id=${d.id})}"
+             onclick="return confirm('Ви впевнені, що хочете видалити цей запис?');"
+             class="btn btn-sm btn-danger">
+            <i class="bi bi-trash"></i> Видалити
           </a>
         </td>
       </tr>
